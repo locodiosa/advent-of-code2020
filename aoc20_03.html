@@ -10,14 +10,9 @@
     }     
 
     function getResult() {      
-      let map = [];
-
-      input.split("\n").forEach((l, i) => {       
-        map[i] = l.split("");
-      });
-
+      let map = input.split("\n").map(y => y.split("").map(x => x));
       let allTrees = [];
-
+      
       const slopes = {x: [3, 1, 5, 7, 1], y: [1, 1, 1, 1, 2]};
 
       for (let d = 0; d < 5; ++d) {
