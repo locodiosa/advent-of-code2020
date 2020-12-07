@@ -67,8 +67,8 @@
     }  
 
     function getChildren(parent, bags) {      
-      return bags[parent].reduce((sum, child) => sum + child[1] * 
-                                                (getChildren(child[0], bags) + 1), 0);
+      return bags[parent].reduce((sum, child) => 
+        sum + child[1] * (getChildren(child[0], bags) + 1), 0);
     }
 
 let input = `vibrant purple bags contain 3 shiny lavender bags, 1 mirrored gray bag, 4 muted bronze bags.
