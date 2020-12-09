@@ -14,12 +14,12 @@
       let value1 = runCode(code)[0];   
 
       let allCodes = [];
-
+     
       code.forEach((c, i) => {
-        if (c[0] == "jmp") {
-          allCodes.push([...code.slice(0, i), ["nop", c[1]], ...code.slice(i + 1)]);
-        } else if (c[0] == "nop") {
-          allCodes.push([...code.slice(0, i), ["jmp", c[1]], ...code.slice(i + 1)]);
+        if (c[0] == "jmp" || c[0] == "nop") {
+          let newCode = [...code.map(e => [...e])];
+          newCode[i][0] = newCode[i][0] == "jmp" ? "nop" : "jmp";
+          allCodes.push(newCode);         
         }
       });
 
