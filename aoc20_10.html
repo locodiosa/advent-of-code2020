@@ -24,75 +24,19 @@
         }
       }
 
-      const part1 = differenceOfOne * differenceOfThree;
+      const part1 = differenceOfOne * differenceOfThree;     
+      const part2 = getNumberOfWays([...adapters, deviceJolts]); 
 
-      const excessJolts = getExcessJolts(adapters, deviceJolts);
-      const index = findIndex(excessJolts);
-
-      const combinations1 = getCombinations(excessJolts.slice(0, index[0]));
-      const combinations2 = getCombinations(excessJolts.slice(index[0], index[1]));
-      const combinations3 = getCombinations(excessJolts.slice(index[1]));
-     
-      const part2 = getNumberOfWays(combinations1) * getNumberOfWays(combinations2) * getNumberOfWays(combinations3); 
 
       return part1 + ", " + part2;
     }
 
-    function findIndex(excessJolts) {
-      let index = [];
+    function getNumberOfWays(adapters) {
+      let ways = {0: 1};
 
-      for (let i = Math.floor(excessJolts.length / 3); i < excessJolts.length; ++i) {
-        if (excessJolts[i + 1] - excessJolts[i] >= 3) {
-          index.push(i + 1);
-          i = excessJolts.length;
-        }
-      } 
-
-      for (let j = excessJolts.length - Math.floor(excessJolts.length / 3); j < excessJolts.length; ++j) {
-        if (excessJolts[j + 1] - excessJolts[j] >= 3) {
-          index.push(j + 1);
-          j = excessJolts.length;
-        }
-      } 
-
-      return index;    
-    }     
-
-    function getNumberOfWays(combinations) {
-      let wrongCombs = {};   
-
-      combinations.forEach((comb, j) => {  
-        for (let i = 0; i < comb.length - 2; ++i) {
-          if (comb[i] == Math.abs(comb[i + 1] + 1) && comb[i + 1] == Math.abs(comb[i + 2] + 1)) {
-            wrongCombs[j] = comb;
-          }      
-        }        
-      });
-
-      return combinations.length - Object.keys(wrongCombs).length;
-    }    
-
-    function getCombinations(arr) {
-      if(arr[0] === undefined) {
-        return [arr];
-      }
-
-      return getCombinations(arr.slice(1)).flatMap(e => [e.concat(arr[0]), e]);
-    }
-
-    function getExcessJolts(adapters, deviceJolts) {
-      let counter = 0;
-      let excessJolts = [];
-      const chain = [0, ...adapters, deviceJolts];
+      adapters.forEach(a => ways[a] = (ways[a - 1] || 0) + (ways[a - 2] || 0) + (ways[a - 3] || 0));
       
-      for (let i = 0; i < chain.length - 2; ++i) {
-        if (chain[i + 2] <= chain[i] + 3) {
-          ++counter;
-          excessJolts.push(chain[i + 1]);
-        }
-      }
-
-      return excessJolts;
+      return ways[adapters[adapters.length - 1]];
     }
 
 let input = `99
