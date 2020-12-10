@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<script>
+		"use strict";  
+    
+    function calc() {
+      document.getElementById("result").innerHTML = getResult();      
+    }     
+
+    function getResult() {      
+      const adapters = input.split("\n").map(Number).sort((a, b) => a - b);      
+      const deviceJolts = Math.max(...adapters) + 3;
+
+      let differenceOfOne = 1;
+      let differenceOfThree = 1;
+
+      for (let i = 0; i < adapters.length; ++i) {
+        if (adapters[i + 1] - adapters[i] == 1) {
+          ++differenceOfOne;
+        } else if (adapters[i + 1] - adapters[i] == 3) {
+          ++differenceOfThree;
+        }
+      }
+
+      const part1 = differenceOfOne * differenceOfThree;
+
+      const excessJolts = getExcessJolts(adapters, deviceJolts);
+      const index = findIndex(excessJolts);
+
+      const combinations1 = getCombinations(excessJolts.slice(0, index[0]));
+      const combinations2 = getCombinations(excessJolts.slice(index[0], index[1]));
+      const combinations3 = getCombinations(excessJolts.slice(index[1]));
+     
+      const part2 = getNumberOfWays(combinations1) * getNumberOfWays(combinations2) * getNumberOfWays(combinations3); 
+
+      return part1 + ", " + part2;
+    }
+
+    function findIndex(excessJolts) {
+      let index = [];
+
+      for (let i = Math.floor(excessJolts.length / 3); i < excessJolts.length; ++i) {
+        if (excessJolts[i + 1] - excessJolts[i] >= 3) {
+          index.push(i + 1);
+          i = excessJolts.length;
+        }
+      } 
+
+      for (let j = excessJolts.length - Math.floor(excessJolts.length / 3); j < excessJolts.length; ++j) {
+        if (excessJolts[j + 1] - excessJolts[j] >= 3) {
+          index.push(j + 1);
+          j = excessJolts.length;
+        }
+      } 
+
+      return index;    
+    }     
+
+    function getNumberOfWays(combinations) {
+      let wrongCombs = {};   
+
+      combinations.forEach((comb, j) => {  
+        for (let i = 0; i < comb.length - 2; ++i) {
+          if (comb[i] == Math.abs(comb[i + 1] + 1) && comb[i + 1] == Math.abs(comb[i + 2] + 1)) {
+            wrongCombs[j] = comb;
+          }      
+        }        
+      });
+
+      return combinations.length - Object.keys(wrongCombs).length;
+    }    
+
+    function getCombinations(arr) {
+      if(arr[0] === undefined) {
+        return [arr];
+      }
+
+      return getCombinations(arr.slice(1)).flatMap(e => [e.concat(arr[0]), e]);
+    }
+
+    function getExcessJolts(adapters, deviceJolts) {
+      let counter = 0;
+      let excessJolts = [];
+      const chain = [0, ...adapters, deviceJolts];
+      
+      for (let i = 0; i < chain.length - 2; ++i) {
+        if (chain[i + 2] <= chain[i] + 3) {
+          ++counter;
+          excessJolts.push(chain[i + 1]);
+        }
+      }
+
+      return excessJolts;
+    }
+
+let input = `99
+128
+154
+160
+61
+107
+75
+38
+15
+11
+129
+94
+157
+84
+121
+14
+119
+48
+30
+10
+55
+108
+74
+104
+91
+45
+134
+109
+164
+66
+146
+44
+116
+89
+79
+32
+149
+1
+136
+58
+96
+7
+60
+23
+31
+3
+65
+110
+90
+37
+43
+115
+122
+52
+113
+123
+161
+50
+95
+150
+120
+101
+126
+151
+114
+127
+73
+82
+162
+140
+51
+144
+36
+4
+163
+85
+42
+59
+67
+64
+86
+49
+2
+145
+135
+22
+24
+33
+137
+16
+27
+70
+133
+130
+20
+21
+83
+143
+100
+41
+76
+17`;
+
+</script>
+</head>
+<body onload="calc()">  
+  <div id="result"></div>  
+</body>
+</html>
