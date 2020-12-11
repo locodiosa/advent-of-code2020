@@ -12,8 +12,8 @@
     function getResult() {     
       const layout = getLayout();
 
-      const part1 = ocupiedSeats(layout, 4);
-      const part2 = ocupiedSeats(layout, 5);   
+      const part1 = ocupiedSeats(layout, 4, checkNeighbors);
+      const part2 = ocupiedSeats(layout, 5, checkVisibles);   
       
       return part1 + ", " + part2;
     }
@@ -36,47 +36,42 @@
       return layout;
     }
 
-    function ocupiedSeats(layout, tolerance) {
+    function ocupiedSeats(layout, tolerance, checkSeatState) {
       let change = true;
 
       while (change == true) {
-        let nextLayout = getNextLayout(layout, tolerance)[0];
-        change = getNextLayout(layout, tolerance)[1];
-        layout = [...nextLayout.map(l => [...l])];
+        [layout, change] = getNextLayout(layout, tolerance, checkSeatState);
       }
 
       return layout.join(",").split(/\D/g).filter(e => e == 1).length;
     }
 
-    function getNextLayout(layout, tolerance) {
+    function getNextLayout(layout, tolerance, checkSeatState) {
       let nextLayout = [...layout.map(l => [...l])];
       let change = false;
       
       for (let i = 1; i < layout.length - 1; ++i) {
         for (let j = 1; j < layout[i].length - 1; ++j) {          
-          let newState = tolerance == 4 ? checkNeighbors(layout, i, j, tolerance) : checkVisibles(layout, i, j, tolerance);
+          let newState = checkSeatState(layout, i, j, tolerance);
 
-          if (nextLayout[i][j] != newState) {
-            change = true;
-            nextLayout[i][j] = newState;
-          } 
+          change |= nextLayout[i][j] != newState;
+          nextLayout[i][j] = newState;          
         }
       }
 
       return [nextLayout, change];
     }
 
-    function checkNeighbors(layout, i, j, tolerance) {            
-      if (layout[i][j] == 0 && ((layout[i][j - 1] || 0) + (layout[i][j + 1] || 0) +
-            (layout[i - 1][j - 1] || 0) + (layout[i - 1][j] || 0) +
-            (layout[i - 1][j + 1] || 0) + (layout[i + 1][j - 1] || 0) +
-            (layout[i + 1][j] || 0) + (layout[i + 1][j + 1] || 0) == 0)) {
+    function checkNeighbors(layout, i, j, tolerance) {  
+      let neighbors = (layout[i][j - 1] || 0) + (layout[i][j + 1] || 0) +
+                      (layout[i - 1][j - 1] || 0) + (layout[i - 1][j] || 0) +
+                      (layout[i - 1][j + 1] || 0) + (layout[i + 1][j - 1] || 0) +
+                      (layout[i + 1][j] || 0) + (layout[i + 1][j + 1] || 0);
+
+      if (layout[i][j] == 0 && neighbors == 0) {
         return 1;        
 
-      } else if (layout[i][j] == 1 && ((layout[i][j - 1] || 0) + (layout[i][j + 1] || 0) +
-            (layout[i - 1][j - 1] || 0) + (layout[i - 1][j] || 0) +
-            (layout[i - 1][j + 1] || 0) + (layout[i + 1][j - 1] || 0) +
-            (layout[i + 1][j] || 0) + (layout[i + 1][j + 1] || 0) >= tolerance)) {
+      } else if (layout[i][j] == 1 && neighbors >= tolerance) {
         return 0;
 
       } else {
@@ -90,56 +85,56 @@
       for (let k = 1; j - k > 0; ++k) {
         if (layout[i][j - k] != undefined) {
           visibles += layout[i][j - k];
-          k = j;
+          break;
         }
       }
 
       for (let k = 1; j + k < layout[1].length - 1; ++k) {
         if (layout[i][j + k] != undefined) {
           visibles += layout[i][j + k];
-          k = layout[1].length - 1;
+          break;
         }
       }
 
       for (let k = 1; i - k > 0; ++k) {
         if (layout[i - k][j] != undefined) {
           visibles += layout[i - k][j];
-          k = i;
+          break;
         }
       }
 
       for (let k = 1; i + k < layout.length - 1; ++k) {
         if (layout[i + k][j] != undefined) {
           visibles += layout[i + k][j];
-          k = layout.length - 1;
+          break;
         }
       }
 
       for (let k = 1; j - k > 0 && i - k > 0; ++k) {
         if (layout[i - k][j - k] != undefined) {
           visibles += layout[i - k][j - k];
-          k = j;
+          break;
         }
       }
 
       for (let k = 1; j + k < layout[1].length - 1 && i + k < layout.length - 1; ++k) {
         if (layout[i + k][j + k] != undefined) {
           visibles += layout[i + k][j + k];
-          k = layout[1].length - 1;
+          break;
         }
       }
 
       for (let k = 1; i - k > 0 && j + k < layout[1].length - 1; ++k) {
         if (layout[i - k][j + k] != undefined) {
           visibles += layout[i - k][j + k];
-          k = i;
+          break;
         }
       }
 
       for (let k = 1; i + k < layout.length - 1 && j - k > 0 ; ++k) {
         if (layout[i + k][j - k] != undefined) {
           visibles += layout[i + k][j - k];
-          k = layout[1].length - 1;
+          break;
         }
       }
 
