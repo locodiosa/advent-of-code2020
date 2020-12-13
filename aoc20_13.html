@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<script>
+		"use strict";  
+    
+    function calc() {
+      document.getElementById("result").innerHTML = getResult();      
+    }     
+
+    function getResult() {
+      const data = input.split("\n").map(line => line.match(/\d+/g).map(Number));
+      const myDepart = data[0][0];
+      const buses = data[1];
+
+      let part1 = 0;      
+
+      buses.forEach(b => {      
+        for (let t = 0; t < myDepart + 1000; t += b) {
+          if (t <= myDepart + 6 && t >= myDepart) {           
+           part1 = b * Math.abs(myDepart - t);
+          }
+        }
+      });   
+
+      const busMinute = input.split("\n").map(line => line.split(",").map(e => e = +e || 0))[1]; 
+      let rem = [];
+
+      busMinute.forEach((b, i) => {
+        if (b != 0) {
+          rem.push([b, b - i % b]);
+        }        
+      });
+      
+      const prod = rem.reduce(((a, b) => a * b[0]), 1);
+      let sum = BigInt(0);
+
+      for (let i = 0; i < rem.length; ++i) {
+        let pp = prod / rem[i][0];
+        let inv = getInv(pp, rem[i][0]);
+        sum += (BigInt(rem[i][1]) * BigInt(pp) * BigInt(inv));
+      }  
+
+      let part2 = sum % BigInt(prod);    
+
+      return part1 + ", " + part2;
+    }
+
+    function getInv(a, m) { 
+      let m0 = m;       
+      let x0 = 0;
+      let x1 = 1; 
+  
+      if (m == 1) {
+        return 0; 
+      }
+  
+      while (a > 1) {
+        const q = Math.floor(a / m);  
+        [m, a] = [a % m, m];
+        [x0, x1] = [x1 - q * x0, x0];
+      } 
+  
+      if (x1 < 0) {        
+        x1 += m0; 
+      }
+  
+    return x1; 
+  } 
+
+let input = `1000390
+23,x,x,x,x,x,x,x,x,x,x,x,x,41,x,x,x,x,x,x,x,x,x,383,x,x,x,x,x,x,x,x,x,x,x,x,13,17,x,x,x,x,19,x,x,x,x,x,x,x,x,x,29,x,503,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,37`;
+
+</script>
+</head>
+<body onload="calc()">  
+  <div id="result"></div>  
+</body>
+</html>
