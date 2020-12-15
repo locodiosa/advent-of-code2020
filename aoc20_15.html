@@ -11,40 +11,11 @@
 
     function getResult() {
       const start = input.split(",").map(Number); 
-
-      return playArr(start, 2020) + ", " + playArr(start, 30000000);
-      
-      //return play(start, 2020) + ", " + play(start, 30000000);
-    }
-
-    function playArr(start, finish) {
-      let turns = new Array(finish);
-      let lastN = null;
-      
-      for (let i = 0; i < start.length; ++i) {
-        turns[i + 1] = start[i];
-        lastN = start[i];
-      }        
-
-      for (let t = start.length + 1; t <= finish; ++t) {        
-        let nextN = null;
-
-        if (turns.lastIndexOf(lastN, t - 2) < 0) {
-          nextN = 0;
-        } else {
-          let index = turns.lastIndexOf(lastN);
-          nextN = index - turns.lastIndexOf(lastN, index - 1);  
-        }
-
-        turns[t] = nextN;
-        lastN = nextN;        
-      }
-
-      return lastN;
+      return play(start, 2020) + ", " + play(start, 30000000);
     }
 
     function play(start, finish) {
-      let numbers = {};
+      let numbers = new Array(finish);
       let lastN = null;
 
       for (let i = 0; i < start.length; ++i) {
