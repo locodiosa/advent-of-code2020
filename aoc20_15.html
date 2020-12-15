@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<script>
+		"use strict";  
+    
+    function calc() {
+      document.getElementById("result").innerHTML = getResult();      
+    }     
+
+    function getResult() {
+      const start = input.split(",").map(Number);     
+     
+      return play(start, 2020) + ", " + play(start, 30000000);
+    }
+
+    function play(start, finish) {
+      let numbers = {};
+      let lastN = null;
+
+      for (let i = 0; i < start.length; ++i) {
+        numbers[start[i]] = [i + 1];
+        lastN = start[i];
+      }
+
+      for (let t = start.length + 1; t <= finish; ++t) {
+        let nextN = 0;
+        let length = numbers[lastN].length;
+
+        if (length > 1) {
+          nextN = numbers[lastN][length - 1] - numbers[lastN][length - 2];
+        }        
+
+        if (numbers[nextN] == undefined) {
+          numbers[nextN] = [t];
+        } else {
+          numbers[nextN].push(t);
+        } 
+
+        lastN = nextN;        
+      }
+
+      return lastN;
+    }
+
+let input = "0,14,1,3,7,9";
+
+</script>
+</head>
+<body onload="calc()">  
+  <div id="result"></div>  
+</body>
+</html>
