@@ -24,11 +24,13 @@
       
       let errors = 0;
 
+      const isValidValue = (v, r) => (v >= r[0] && v <= r[1]) || (v >= r[2] && v <= r[3]);
+
       let validTickets = nearbyTickets.filter(t => {
         let isValidTicket = true;
 
         t.forEach(v => {
-          let valid = rules.some(r => (v >= r[0] && v <= r[1]) || (v >= r[2] && v <= r[3]));
+          let valid = rules.some(r => isValidValue(v, r));
 
           if (valid == false) {
             errors += v;
@@ -48,14 +50,7 @@
 
         for (let i = 0; i < validTickets[0].length; ++i) {
           validTickets.forEach(t => {
-            const v = t[i];
-
-            let newCheckRules = checkRules.filter(r => {
-              if ((v >= r[0] && v <= r[1]) || (v >= r[2] && v <= r[3])) {
-                return true;
-              }
-            });
-
+            let newCheckRules = checkRules.filter(r => isValidValue(t[i], r));
             checkRules = [...newCheckRules];
           }); 
 
@@ -65,15 +60,15 @@
 
             fields[k] += ticket[i];
             rules = [...rules.slice(0, j), ...rules.slice(j + 1)];
-            validTickets.map(tic => tic[i] = undefined);
+            validTickets.forEach(tic => tic[i] = undefined);
           } 
           
           checkRules = [...rules];           
         }        
       }
 
-      const departure = fields.filter(f => (f.indexOf("departure") == 0))
-        .map(f => f.match(/\d+/g).map(Number)[0]).reduce((s, e) => s *= e, 1);
+      const departure = fields.filter(f => f.startsWith("departure"))
+        .map(f => f.match(/\d+/g).map(Number)[0]).reduce((s, e) => s * e, 1);
      
       return errors + ", " + departure;
     }
