@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<script>
+		"use strict";  
+    
+    function calc() {
+      document.getElementById("result").innerHTML = getResult();      
+    }     
+
+    function getResult() {
+      let init = input.split("\n").map(line => line.split(""));      
+      let grid = {};
+
+      for (let y = 0; y < init.length; ++y) {
+        for (let x = 0; x < init[y].length; ++x) {
+          grid["" + [0, y, x, 0] + ""] = init[y][x];
+        }
+      }
+
+      let cycle = 0;
+
+      while (cycle < 6) {
+        ++cycle;
+
+        let nextGrid = Object.assign({}, grid);
+
+        Object.keys(grid).forEach(cube => {
+          let coord = cube.split(",").map(Number);
+          let z = coord[0];
+          let y = coord[1];
+          let x = coord[2];
+          let w = coord[3];
+
+          let neighbors = getNeighbors(z, y, x, w);          
+          let activeN = 0;
+
+          for (let i = 0; i < neighbors.length; ++i) {
+           if (grid["" + neighbors[i] + ""] == "#") {
+              ++activeN;
+            } else if (grid["" + neighbors[i] + ""] == undefined) {
+              let newNeighbors = getNeighbors(neighbors[i][0], neighbors[i][1], neighbors[i][2], neighbors[i][3]);
+              let activeNN = 0;
+
+              for (let j = 0; j < newNeighbors.length; ++j) {
+                if (grid["" + newNeighbors[j] + ""] == "#") {
+                  ++activeNN;
+                }
+              }
+
+              if (activeNN == "3") {
+                nextGrid["" + neighbors[i] + ""] = "#";
+              } else {
+                nextGrid["" + neighbors[i] + ""] = ".";
+              }              
+            }           
+          }
+
+          if (grid[cube] == "#") {
+            if (activeN < 2 || activeN > 3) {
+              nextGrid[cube] = ".";
+            }
+          } else {
+            if (activeN == 3) {
+              nextGrid[cube] = "#";              
+            }
+          }
+        });
+       
+        grid = Object.assign({}, nextGrid);
+      }
+
+      let active = Object.values(grid).filter(c => c == "#").length;
+     
+      return active + ", " + null;
+    }
+
+    function getNeighbors(z, y, x, w) {
+      return [[z, y, x + 1, w], [z, y, x - 1, w], [z, y + 1, x, w], [z, y + 1, x + 1, w], [z, y + 1, x - 1, w], [z, y - 1, x, w], [z, y - 1, x + 1, w], [z, y - 1, x - 1, w], [z + 1, y, x, w], [z + 1, y, x + 1, w], [z + 1, y, x - 1, w], [z + 1, y + 1, x, w], [z + 1, y + 1, x + 1, w], [z + 1, y + 1, x - 1, w], [z + 1, y - 1, x, w], [z + 1, y - 1, x + 1, w], [z + 1, y - 1, x - 1, w], [z - 1, y, x, w], [z - 1, y, x + 1, w], [z - 1, y, x - 1, w], [z - 1, y + 1, x, w], [z - 1, y + 1, x + 1, w], [z - 1, y + 1, x - 1, w], [z - 1, y - 1, x, w], [z - 1, y - 1, x + 1, w], [z - 1, y - 1, x - 1, w], 
+
+      [z, y, x + 1, w + 1], [z, y, x - 1, w + 1], [z, y + 1, x, w + 1], [z, y + 1, x + 1, w + 1], [z, y + 1, x - 1, w + 1], [z, y - 1, x, w + 1], [z, y - 1, x + 1, w + 1], [z, y - 1, x - 1, w + 1], [z + 1, y, x, w + 1], [z + 1, y, x + 1, w + 1], [z + 1, y, x - 1, w + 1], [z + 1, y + 1, x, w + 1], [z + 1, y + 1, x + 1, w + 1], [z + 1, y + 1, x - 1, w + 1], [z + 1, y - 1, x, w + 1], [z + 1, y - 1, x + 1, w + 1], [z + 1, y - 1, x - 1, w + 1], [z - 1, y, x, w + 1], [z - 1, y, x + 1, w + 1], [z - 1, y, x - 1, w + 1], [z - 1, y + 1, x, w + 1], [z - 1, y + 1, x + 1, w + 1], [z - 1, y + 1, x - 1, w + 1], [z - 1, y - 1, x, w + 1], [z - 1, y - 1, x + 1, w + 1], [z - 1, y - 1, x - 1, w + 1], 
+
+      [z, y, x + 1, w - 1], [z, y, x - 1, w - 1], [z, y + 1, x, w - 1], [z, y + 1, x + 1, w - 1], [z, y + 1, x - 1, w - 1], [z, y - 1, x, w - 1], [z, y - 1, x + 1, w - 1], [z, y - 1, x - 1, w - 1], [z + 1, y, x, w - 1], [z + 1, y, x + 1, w - 1], [z + 1, y, x - 1, w - 1], [z + 1, y + 1, x, w - 1], [z + 1, y + 1, x + 1, w - 1], [z + 1, y + 1, x - 1, w - 1], [z + 1, y - 1, x, w - 1], [z + 1, y - 1, x + 1, w - 1], [z + 1, y - 1, x - 1, w - 1], [z - 1, y, x, w - 1], [z - 1, y, x + 1, w - 1], [z - 1, y, x - 1, w - 1], [z - 1, y + 1, x, w - 1], [z - 1, y + 1, x + 1, w - 1], [z - 1, y + 1, x - 1, w - 1], [z - 1, y - 1, x, w - 1], [z - 1, y - 1, x + 1, w - 1], [z - 1, y - 1, x - 1, w - 1], 
+
+      [z, y, x, w + 1], [z, y, x, w - 1]];
+    }
+
+const input = `..#....#
+##.#..##
+.###....
+#....#.#
+#.######
+##.#....
+#.......
+.#......`;
+
+</script>
+</head>
+<body onload="calc()">  
+  <div id="result"></div>  
+</body>
+</html>
