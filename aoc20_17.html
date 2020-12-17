@@ -16,8 +16,10 @@
 
       for (let y = 0; y < init.length; ++y) {
         for (let x = 0; x < init[y].length; ++x) {
-          grid["" + [0, y, x] + ""] = init[y][x];
-          grid2["" + [0, y, x, 0] + ""] = init[y][x];
+          if (init[y][x] == "#") {
+            grid[[x, y, 0].join(",")] = true;
+            grid2[[x, y, 0, 0].join(",")] = true;
+          }
         }
       }      
      
@@ -25,73 +27,62 @@
     }
 
     function getActives(grid, findNeighbors) {
-      let cycle = 0;
+      for (let cycle = 0; cycle < 6; ++cycle) {
+        const nextGrid = {};
 
-      while (cycle < 6) {
-        ++cycle;
+        const candidates = new Set(Object.keys(grid));
 
-        let nextGrid = Object.assign({}, grid);
+        Object.keys(grid).forEach(cube => 
+          findNeighbors(...cube.split(",").map(Number))
+            .forEach(neighbor => candidates.add(neighbor.join(","))));    
 
-        Object.keys(grid).forEach(cube => {
-          let coord = cube.split(",").map(Number);
-          let z = coord[0];
-          let y = coord[1];
-          let x = coord[2];
-          let w = coord[3];
+        candidates.forEach(cube => {
+          const activeN = findNeighbors(...cube.split(",").map(Number))
+            .filter(e => grid[e.join(",")]).length;
 
-          let neighbors = findNeighbors(z, y, x, w);          
-          let activeN = 0;
-
-          for (let i = 0; i < neighbors.length; ++i) {
-           if (grid["" + neighbors[i] + ""] == "#") {
-              ++activeN;
-            } else if (grid["" + neighbors[i] + ""] == undefined) {
-              let newNeighbors = findNeighbors(neighbors[i][0], neighbors[i][1], neighbors[i][2], neighbors[i][3]);
-              let activeNN = 0;
-
-              for (let j = 0; j < newNeighbors.length; ++j) {
-                if (grid["" + newNeighbors[j] + ""] == "#") {
-                  ++activeNN;
-                }
-              }
-
-              if (activeNN == "3") {
-                nextGrid["" + neighbors[i] + ""] = "#";
-              } else {
-                nextGrid["" + neighbors[i] + ""] = ".";
-              }              
-            }           
-          }
-
-          if (grid[cube] == "#") {
-            if (activeN < 2 || activeN > 3) {
-              nextGrid[cube] = ".";
-            }
-          } else {
-            if (activeN == 3) {
-              nextGrid[cube] = "#";              
-            }
+          if (activeN == 3 || (grid[cube] && activeN == 2)) {
+            nextGrid[cube] = true;              
           }
         });
        
-        grid = Object.assign({}, nextGrid);
+        grid = nextGrid;
       }
 
-      return Object.values(grid).filter(c => c == "#").length;
+      return Object.keys(grid).length;
     }
 
-    function getNeighbors(z, y, x) {
-      return [[z, y, x + 1], [z, y, x - 1], [z, y + 1, x], [z, y + 1, x + 1], [z, y + 1, x - 1], [z, y - 1, x], [z, y - 1, x + 1], [z, y - 1, x - 1], [z + 1, y, x], [z + 1, y, x + 1], [z + 1, y, x - 1], [z + 1, y + 1, x], [z + 1, y + 1, x + 1], [z + 1, y + 1, x - 1], [z + 1, y - 1, x], [z + 1, y - 1, x + 1], [z + 1, y - 1, x - 1], [z - 1, y, x], [z - 1, y, x + 1], [z - 1, y, x - 1], [z - 1, y + 1, x], [z - 1, y + 1, x + 1], [z - 1, y + 1, x - 1], [z - 1, y - 1, x], [z - 1, y - 1, x + 1], [z - 1, y - 1, x - 1]];
+    function getNeighbors(x, y, z) {
+      let neighbors = [];
+
+      for (let xx = x - 1; xx <= x + 1; ++xx) {
+        for (let yy = y - 1; yy <= y + 1; ++yy) {
+          for (let zz = z - 1; zz <= z + 1; ++zz) {
+            if (xx != x || yy != y || zz != z) {
+              neighbors.push([xx, yy, zz]);
+            }
+          }
+        }
+      }
+
+      return neighbors;
     }
 
-    function getNeighbors2(z, y, x, w) {
-      return [[z, y, x + 1, w], [z, y, x - 1, w], [z, y + 1, x, w], [z, y + 1, x + 1, w], [z, y + 1, x - 1, w], [z, y - 1, x, w], [z, y - 1, x + 1, w], [z, y - 1, x - 1, w], [z + 1, y, x, w], [z + 1, y, x + 1, w], [z + 1, y, x - 1, w], [z + 1, y + 1, x, w], [z + 1, y + 1, x + 1, w], [z + 1, y + 1, x - 1, w], [z + 1, y - 1, x, w], [z + 1, y - 1, x + 1, w], [z + 1, y - 1, x - 1, w], [z - 1, y, x, w], [z - 1, y, x + 1, w], [z - 1, y, x - 1, w], [z - 1, y + 1, x, w], [z - 1, y + 1, x + 1, w], [z - 1, y + 1, x - 1, w], [z - 1, y - 1, x, w], [z - 1, y - 1, x + 1, w], [z - 1, y - 1, x - 1, w], 
+    function getNeighbors2(x, y, z, w) {
+      let neighbors = [];
 
-      [z, y, x + 1, w + 1], [z, y, x - 1, w + 1], [z, y + 1, x, w + 1], [z, y + 1, x + 1, w + 1], [z, y + 1, x - 1, w + 1], [z, y - 1, x, w + 1], [z, y - 1, x + 1, w + 1], [z, y - 1, x - 1, w + 1], [z + 1, y, x, w + 1], [z + 1, y, x + 1, w + 1], [z + 1, y, x - 1, w + 1], [z + 1, y + 1, x, w + 1], [z + 1, y + 1, x + 1, w + 1], [z + 1, y + 1, x - 1, w + 1], [z + 1, y - 1, x, w + 1], [z + 1, y - 1, x + 1, w + 1], [z + 1, y - 1, x - 1, w + 1], [z - 1, y, x, w + 1], [z - 1, y, x + 1, w + 1], [z - 1, y, x - 1, w + 1], [z - 1, y + 1, x, w + 1], [z - 1, y + 1, x + 1, w + 1], [z - 1, y + 1, x - 1, w + 1], [z - 1, y - 1, x, w + 1], [z - 1, y - 1, x + 1, w + 1], [z - 1, y - 1, x - 1, w + 1], 
+      for (let xx = x - 1; xx <= x + 1; ++xx) {
+        for (let yy = y - 1; yy <= y + 1; ++yy) {
+          for (let zz = z - 1; zz <= z + 1; ++zz) {
+            for (let ww = w - 1; ww <= w + 1; ++ww) {
+              if (xx != x || yy != y || zz != z || ww != w) {
+                neighbors.push([xx, yy, zz, ww]);
+              }
+            }
+          }
+        }
+      }
 
-      [z, y, x + 1, w - 1], [z, y, x - 1, w - 1], [z, y + 1, x, w - 1], [z, y + 1, x + 1, w - 1], [z, y + 1, x - 1, w - 1], [z, y - 1, x, w - 1], [z, y - 1, x + 1, w - 1], [z, y - 1, x - 1, w - 1], [z + 1, y, x, w - 1], [z + 1, y, x + 1, w - 1], [z + 1, y, x - 1, w - 1], [z + 1, y + 1, x, w - 1], [z + 1, y + 1, x + 1, w - 1], [z + 1, y + 1, x - 1, w - 1], [z + 1, y - 1, x, w - 1], [z + 1, y - 1, x + 1, w - 1], [z + 1, y - 1, x - 1, w - 1], [z - 1, y, x, w - 1], [z - 1, y, x + 1, w - 1], [z - 1, y, x - 1, w - 1], [z - 1, y + 1, x, w - 1], [z - 1, y + 1, x + 1, w - 1], [z - 1, y + 1, x - 1, w - 1], [z - 1, y - 1, x, w - 1], [z - 1, y - 1, x + 1, w - 1], [z - 1, y - 1, x - 1, w - 1], 
-
-      [z, y, x, w + 1], [z, y, x, w - 1]];
+      return neighbors;
     }
 
 const input = `..#....#
