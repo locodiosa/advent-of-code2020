@@ -12,13 +12,19 @@
     function getResult() {
       let init = input.split("\n").map(line => line.split(""));      
       let grid = {};
+      let grid2 = {};
 
       for (let y = 0; y < init.length; ++y) {
         for (let x = 0; x < init[y].length; ++x) {
-          grid["" + [0, y, x, 0] + ""] = init[y][x];
+          grid["" + [0, y, x] + ""] = init[y][x];
+          grid2["" + [0, y, x, 0] + ""] = init[y][x];
         }
-      }
+      }      
+     
+      return getActives(grid, getNeighbors) + ", " + getActives(grid2, getNeighbors2);
+    }
 
+    function getActives(grid, findNeighbors) {
       let cycle = 0;
 
       while (cycle < 6) {
@@ -33,14 +39,14 @@
           let x = coord[2];
           let w = coord[3];
 
-          let neighbors = getNeighbors(z, y, x, w);          
+          let neighbors = findNeighbors(z, y, x, w);          
           let activeN = 0;
 
           for (let i = 0; i < neighbors.length; ++i) {
            if (grid["" + neighbors[i] + ""] == "#") {
               ++activeN;
             } else if (grid["" + neighbors[i] + ""] == undefined) {
-              let newNeighbors = getNeighbors(neighbors[i][0], neighbors[i][1], neighbors[i][2], neighbors[i][3]);
+              let newNeighbors = findNeighbors(neighbors[i][0], neighbors[i][1], neighbors[i][2], neighbors[i][3]);
               let activeNN = 0;
 
               for (let j = 0; j < newNeighbors.length; ++j) {
@@ -71,12 +77,14 @@
         grid = Object.assign({}, nextGrid);
       }
 
-      let active = Object.values(grid).filter(c => c == "#").length;
-     
-      return active + ", " + null;
+      return Object.values(grid).filter(c => c == "#").length;
     }
 
-    function getNeighbors(z, y, x, w) {
+    function getNeighbors(z, y, x) {
+      return [[z, y, x + 1], [z, y, x - 1], [z, y + 1, x], [z, y + 1, x + 1], [z, y + 1, x - 1], [z, y - 1, x], [z, y - 1, x + 1], [z, y - 1, x - 1], [z + 1, y, x], [z + 1, y, x + 1], [z + 1, y, x - 1], [z + 1, y + 1, x], [z + 1, y + 1, x + 1], [z + 1, y + 1, x - 1], [z + 1, y - 1, x], [z + 1, y - 1, x + 1], [z + 1, y - 1, x - 1], [z - 1, y, x], [z - 1, y, x + 1], [z - 1, y, x - 1], [z - 1, y + 1, x], [z - 1, y + 1, x + 1], [z - 1, y + 1, x - 1], [z - 1, y - 1, x], [z - 1, y - 1, x + 1], [z - 1, y - 1, x - 1]];
+    }
+
+    function getNeighbors2(z, y, x, w) {
       return [[z, y, x + 1, w], [z, y, x - 1, w], [z, y + 1, x, w], [z, y + 1, x + 1, w], [z, y + 1, x - 1, w], [z, y - 1, x, w], [z, y - 1, x + 1, w], [z, y - 1, x - 1, w], [z + 1, y, x, w], [z + 1, y, x + 1, w], [z + 1, y, x - 1, w], [z + 1, y + 1, x, w], [z + 1, y + 1, x + 1, w], [z + 1, y + 1, x - 1, w], [z + 1, y - 1, x, w], [z + 1, y - 1, x + 1, w], [z + 1, y - 1, x - 1, w], [z - 1, y, x, w], [z - 1, y, x + 1, w], [z - 1, y, x - 1, w], [z - 1, y + 1, x, w], [z - 1, y + 1, x + 1, w], [z - 1, y + 1, x - 1, w], [z - 1, y - 1, x, w], [z - 1, y - 1, x + 1, w], [z - 1, y - 1, x - 1, w], 
 
       [z, y, x + 1, w + 1], [z, y, x - 1, w + 1], [z, y + 1, x, w + 1], [z, y + 1, x + 1, w + 1], [z, y + 1, x - 1, w + 1], [z, y - 1, x, w + 1], [z, y - 1, x + 1, w + 1], [z, y - 1, x - 1, w + 1], [z + 1, y, x, w + 1], [z + 1, y, x + 1, w + 1], [z + 1, y, x - 1, w + 1], [z + 1, y + 1, x, w + 1], [z + 1, y + 1, x + 1, w + 1], [z + 1, y + 1, x - 1, w + 1], [z + 1, y - 1, x, w + 1], [z + 1, y - 1, x + 1, w + 1], [z + 1, y - 1, x - 1, w + 1], [z - 1, y, x, w + 1], [z - 1, y, x + 1, w + 1], [z - 1, y, x - 1, w + 1], [z - 1, y + 1, x, w + 1], [z - 1, y + 1, x + 1, w + 1], [z - 1, y + 1, x - 1, w + 1], [z - 1, y - 1, x, w + 1], [z - 1, y - 1, x + 1, w + 1], [z - 1, y - 1, x - 1, w + 1], 
