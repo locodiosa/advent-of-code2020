@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<script>
+		"use strict";  
+    
+    function calc() {
+      document.getElementById("result").innerHTML = getResult();      
+    }     
+
+    function getResult() {
+      let [player1, player2] = input.split("\n\n").map(p => p.split("\n"));
+      player1.shift();
+      player2.shift();
+
+      player1 = player1.map(e => +e);
+      player2 = player2.map(e => +e);      
+      
+      return game1(player1, player2) + ", " + game2(player1, player2)[1];
+    }
+
+    function game2(p1, p2) {
+      const player1 = [...p1];
+      const player2 = [...p2];
+      const combinations = [];
+
+      while (player1.length > 0 && player2.length > 0) {   
+        if (combinations.indexOf(([...player1, ";", ...player2]).join(",")) >= 0) {  
+          return [1, [...player1].reverse().reduce(((a, e, i) => a + e * (i + 1)), 0)];
+        } else {        
+          combinations.push(([...player1, ";", ...player2]).join(","));
+        } 
+
+        if (player1.length > player1[0] && player2.length > player2[0]) {
+          if (game2(player1.slice(1, player1[0] + 1), player2.slice(1, player2[0] + 1))[0] == 1) {
+            player1.push(player1.shift(), player2.shift());
+          } else {
+            player2.push(player2.shift(), player1.shift());
+          }
+
+        } else {
+          if (player1[0] > player2[0]) {
+            player1.push(player1.shift(), player2.shift());
+          } else{
+            player2.push(player2.shift(), player1.shift());
+          }
+        }
+      }
+
+      if (player2.length == 0) {
+        return [1, [...player1].reverse().reduce(((a, e, i) => a + e * (i + 1)), 0)];
+      } else {
+        return [2, [...player2].reverse().reduce(((a, e, i) => a + e * (i + 1)), 0)];
+      }      
+    } 
+
+    function game1(p1, p2) {
+      const player1 = [...p1];
+      const player2 = [...p2];
+
+      while (player1.length > 0 && player2.length > 0) {
+        if (player1[0] > player2[0]) {
+          player1.push(player1.shift(), player2.shift());
+        } else if (player2[0] > player1[0]) {
+          player2.push(player2.shift(), player1.shift());
+        }
+      }
+
+      return [...player1].reverse().reduce(((a, e, i) => a + e * (i + 1)), 0);
+    }
+    
+const input = `Player 1:
+18
+19
+16
+11
+47
+38
+6
+27
+9
+22
+15
+42
+3
+4
+21
+41
+14
+8
+23
+30
+40
+13
+35
+46
+50
+
+Player 2:
+39
+1
+29
+20
+45
+43
+12
+2
+37
+33
+49
+32
+10
+26
+36
+17
+34
+44
+25
+28
+24
+5
+48
+31
+7`;
+
+</script>
+</head>
+<body onload="calc()">  
+  <div id="result"></div>  
+</body>
+</html>
