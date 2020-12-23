@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<script>
+		"use strict";  
+    
+    function calc() {
+      document.getElementById("result").innerHTML = getResult();      
+    }     
+
+    function getResult() {
+      const label = input.split("").map(Number);
+      const cups = label.map(e => e = {value: e, next: null});    
+      
+      let maxValue = label.length;
+      const part1 = play(cups, maxValue, 100);
+
+      const cups2 = label.map(e => e = {value: e, next: null});
+
+      for (let i = 1; cups2.length < 1000000; ++i) {
+        cups2.push({value: maxValue + i, next: null});
+      }
+      
+      const part2 = play(cups2, cups2.length, 10000000);
+      console.log(part2);
+      
+      return getString(part1) + ", " + (part2.next.value * part2.next.next.value);
+    }
+
+    function play(cups, maxValue, steps) {
+      for (let i = 0; i < cups.length; ++i) {
+        if (i == cups.length - 1) {
+          cups[i].next = cups[0];
+        } else {
+          cups[i].next = cups[i + 1];
+        }        
+      }
+
+      const index = Object.fromEntries(cups.map(e => [e.value, e]));
+
+      let cur = cups[0];
+
+      for (let n = 0; n < steps; ++n) {
+        let pick = cur.next;
+        cur.next = cur.next.next.next.next;
+
+        let dest = cur.value;
+        let pickValues = [cur.value, pick.value, pick.next.value, pick.next.next.value];
+
+        while (pickValues.indexOf(dest) >= 0) {
+          --dest;
+
+          if (dest == 0) {
+            dest = maxValue;
+          }
+        }
+
+        pick.next.next.next = index[dest].next;
+        index[dest].next = pick;
+        cur = cur.next;        
+      }
+
+      return index[1];
+    }
+
+    function getString(head) {
+      const res = [];
+
+      for (let e = head.next; e !== head; e = e.next) {
+        res.push(e.value);
+      }
+
+      return res.join("");
+    }
+    
+const input = "716892543";
+
+</script>
+</head>
+<body onload="calc()">  
+  <div id="result"></div>  
+</body>
+</html>
