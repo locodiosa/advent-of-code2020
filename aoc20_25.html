@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<script>
+		"use strict";  
+    
+    function calc() {
+      document.getElementById("result").innerHTML = getResult();      
+    }     
+
+    function getResult() {
+      const [cardKey, doorKey] = input.split("\n").map(Number);      
+      const subject = 7;
+
+      let valueCard = 1;      
+      let valueDoor = 1; 
+      let loopCard = 0;     
+
+      for (let loop = 1; valueDoor != doorKey; ++loop) {
+      	valueCard = valueCard * subject % 20201227;
+		valueDoor = valueDoor * subject % 20201227;
+
+		if (valueCard == cardKey) {
+			loopCard = loop;
+		}		
+      }
+
+      let key = 1;  
+
+      for (let loop = 1; loop <= loopCard; ++loop) {
+		key = key * valueDoor % 20201227;
+      }
+
+      return key;
+    }
+    
+const input = `13316116
+13651422`;
+
+</script>
+</head>
+<body onload="calc()">  
+  <div id="result"></div>  
+</body>
+</html>
