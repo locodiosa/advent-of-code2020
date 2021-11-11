@@ -10,55 +10,123 @@
     }     
 
     function getResult() {
-      const allTiles = getTiles();      
-      const [corners, pairs] = getPairs(getBorders(allTiles));
+      const allTiles = getPairs(getTiles());
+      const corners = [];
 
-      console.log(pairs);
-
-      let part1 = corners.reduce((a, e) => a * e, 1);      
-
-      const image = [[allTiles["Tile 1699"]]];
-      const IdInPlace = [["Tile 1699"]];
-
-
-      for (let r = 0; r < 1; ++r) {
-        for (let c = 0; c < 9; ++c) {
-          let p = (pairs[IdInPlace[r][c]].find(e => e[1] == 2 || e[1] == "-2") || []);
-
-          image[r][c + 1] = rightDirect(allTiles[p[0]], p);
-          IdInPlace[r][c + 1] = p[0];
-
-          pairs[p[0]]
-
+      for (let i = 0; i < allTiles.length; ++i) {
+        if (allTiles[i].pairs.filter(e => e == undefined).length == 2) {
+          console.log(allTiles[i].id);
+          corners.push(+allTiles[i].id.match(/\d+/g));
         }
-      }  
+      }
+      
+      let part1 = corners.reduce((a, e) => a * e, 1);
 
-      console.log(image);  
-      console.log(IdInPlace);
+      const image = [];
+      const IdInPlace = [];
+      
+      /*for (let r = 0; r < 1; ++r) {
+        for (let c = 0; c < 9; ++c) {
+          let p = (pairsInRight[IdInPlace[r][c]].find(e => e[1] == 2 || e[1] == "-2") || []);
+          image[r][c + 1] = tilesInRightDirect[p[0]];
+          IdInPlace[r][c + 1] = p[0];   
+        }     
+      }*/
+
+      /*let nextP = pairsInRight[IdInPlace[r][0]].find(e => e[1] == 3 || e[1] == "-3") || [];      
+        IdInPlace.push([nextP[0]]);   
+        image.push([tilesInRightDirect[nextP[0]]]);*/
+
 
       return part1 + ", " + 0;
     } 
 
-    function rightDirect(part, p) {
-      let partner = [...part.map(e => [...e])];
+    function getPairs(allTiles) {
+      const corners = [];      
 
-      if (String(p[2]).indexOf("-") >= 0) {
-        partner = flip(partner);            
+      let queue = [allTiles[0]];
+      
+      while (queue.length > 0) {
+        let ct = queue.shift();      
+
+        for (let n = 0; n < ct.pairs.length; ++n) {
+          if (ct.pairs[n] == undefined) {
+            for (let i = 0; i < allTiles.length; ++i) {
+              let pt = allTiles[i];
+
+              if (pt.id != ct.id) {
+                let cbord = getBorder(ct.data, n);
+                let m = (n + 2) % 4;
+
+                for (let j = 0; j < 8; ++j) {
+                  let newData = changeDirect(pt.data, j);
+                  let pbord = getBorder(newData, m);                  
+
+                  if (cbord == pbord) {
+                    ct.pairs[n] = pt.id;
+                    pt.pairs[m] = ct.id;
+                    pt.data = newData;
+                    queue.push(pt);
+                    j = 8;
+                  }
+                }                
+              }
+            }
+          }
+        }
       }
 
-      if (p[1] == Math.abs(p[2])) {
-        partner = turn(turn(partner));
-
-      } else if (Math.abs(p[2]) - p[1] == 1) {
-        partner = turn(partner);
-
-      } else if (Math.abs(p[2]) - p[1] == 3) {
-        partner = turn(turn(turn(partner)));
-      }  
-
-      return partner;
+      return allTiles;
     }
 
+    function changeDirect(data, n) {
+      if (n == 0) {
+        return data;
+      } else if (n == 1) {
+        return turn(data);
+      } else if (n == 2) {
+        return turn(turn(data));
+      } else if (n == 3) {
+        return turn(turn(turn(data)));
+      } else if (n == 4) {
+        return flip(data);
+      } else if (n == 5) {
+        return turn(flip(data));
+      } else if (n == 6) {
+        return turn(turn(flip(data)));
+      } else if (n == 7) {
+        return turn(turn(turn(flip(data))));
+      }
+    }
+
+    function getBorder(data, n) {
+      let border = [];
+
+      if (n == 0) {
+        for (let y = data.length - 1; y >= 0; --y) {          
+          border.push(data[y][0]);
+        } 
+
+      } else if (n == 1) {
+        for (let y = 0; y < data.length; ++y) {          
+          border.push(data[0][y]);
+        }
+
+      } else if (n == 2) {
+        for (let y = 0; y < data.length; ++y) {          
+          border.push(data[y][data.length - 1]);
+        } 
+
+      } else if (n == 3) {
+        for (let y = data.length - 1; y >= 0; --y) {          
+          border.push(data[data.length - 1][y]);
+        } 
+
+      }
+
+      return border.join("");
+    }
+    
     function turn(tile) {
       let tileTurn = [...tile.map(e => [...e])];
      
@@ -73,85 +141,19 @@
 
     function flip(tile) {
       return [...tile.map(e => [...e].reverse())];
-    }
-
-    function getPairs(borders) {
-      const corners = [];
-      const pairs = {};
-
-      Object.keys(borders).forEach(key => {
-        let tile = borders[key];
-        let pairBoards = 0;        
-
-        tile.forEach((bord, n) => {
-          Object.keys(borders).forEach(k => {
-            if (k != key) {
-              let checkTile = borders[k];
-
-              for (let i = 0; i < checkTile.length; ++i) {
-                if (bord == checkTile[i]) {
-                  ++pairBoards;
-                  //console.log(key + " " + n + " - " + k + " " + i);
-                  if (pairs[key] == undefined) {
-                    pairs[key] = [];
-                  }
-                  pairs[key].push([k, n, i]); 
-
-                } else if (bord == [...checkTile[i].split("")].reverse().join("")) {
-                  ++pairBoards;
-                  //console.log(key + " " + n + " - " + k + " " + i);
-                  if (pairs[key] == undefined) {
-                    pairs[key] = [];
-                  }
-                  pairs[key].push([k, n, "-" + i]);                  
-                }
-              }
-            }
-          });
-        });
-
-        if (pairBoards == 2) {
-          corners.push(+key.match(/\d+/g));
-        }
-      });
-
-      console.log(corners);
-
-      return [corners, pairs];
-    }
-
-    function getBorders(allTiles) {
-      let allBorders = {};
-
-      Object.keys(allTiles).forEach(key => {
-        let tile = allTiles[key];
-        let borderLeft = [];
-        let borderRight = [];
-        let borderUp = [];
-        let borderDown = [];
-
-        for (let y = 0; y < tile.length; ++y) {          
-          borderLeft.push(tile[y][0]);
-          borderRight.push(tile[y][tile.length - 1]);
-          borderUp.push(tile[0][y]);
-          borderDown.push(tile[tile.length - 1][y]);
-        }        
-
-        let borders = [borderLeft.join(""), borderUp.join(""), borderRight.join(""), borderDown.join("")];
-
-        allBorders[key] = borders;        
-      });
-
-      return allBorders;
-    }
+    }   
 
     function getTiles() {
-      const allTiles = Object.fromEntries(input.split("\n\n").map(t => t.split(":\n")));
+      const allTiles = input.split("\n\n").map(t => t = {
+        id: t.split(":\n")[0], 
+        data: t.split(":\n")[1],
+        pairs: [undefined, undefined, undefined, undefined]
+      });      
 
-      Object.keys(allTiles).forEach(k => {
-        allTiles[k] = allTiles[k].split("\n").map(line => line.split(""));
-      });
-
+      for (let i = 0; i < allTiles.length; ++i) {
+        allTiles[i].data = allTiles[i].data.split("\n").map(line => line.split(""));
+      }     
+     
       return allTiles;
     }   
 
