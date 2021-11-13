@@ -15,35 +15,102 @@
 
       for (let i = 0; i < allTiles.length; ++i) {
         if (allTiles[i].pairs.filter(e => e == undefined).length == 2) {
-          console.log(allTiles[i].id);
           corners.push(+allTiles[i].id.match(/\d+/g));
         }
       }
       
       let part1 = corners.reduce((a, e) => a * e, 1);
 
-      const image = [];
-      const IdInPlace = [];
-      
-      /*for (let r = 0; r < 1; ++r) {
-        for (let c = 0; c < 9; ++c) {
-          let p = (pairsInRight[IdInPlace[r][c]].find(e => e[1] == 2 || e[1] == "-2") || []);
-          image[r][c + 1] = tilesInRightDirect[p[0]];
-          IdInPlace[r][c + 1] = p[0];   
-        }     
-      }*/
+      let start = null;
+      let num = 0;
 
-      /*let nextP = pairsInRight[IdInPlace[r][0]].find(e => e[1] == 3 || e[1] == "-3") || [];      
-        IdInPlace.push([nextP[0]]);   
-        image.push([tilesInRightDirect[nextP[0]]]);*/
+      for (let i = 0; i < corners.length; ++i) {
+        for (let j = 0; j < allTiles.length; ++j) {
+          if (allTiles[j].id == "Tile " + corners[i] && allTiles[j].pairs[0] == undefined 
+            && allTiles[j].pairs[1] == undefined) {
+            start = allTiles[j].id;
+            num = j;
+          }
+        }
+      }
 
+      for (let i = 0; i < allTiles.length; ++i) {
+        allTiles[i].data.pop();
+        allTiles[i].data.shift();
 
-      return part1 + ", " + 0;
+        for (let j = 0; j < allTiles[i].data.length; ++j) {
+          allTiles[i].data[j].pop();
+          allTiles[i].data[j].shift();
+        }
+      }
+
+      let image = [[allTiles[num].data]];      
+
+      for (let r = 0; r < 12; ++r) {
+        let n = num;
+
+        for (let c = 0; allTiles[n].pairs[2] != undefined; ++c) {
+          let nextId = allTiles[n].pairs[2];
+
+          for (let i = 0; i < allTiles.length; ++i) {
+            if (allTiles[i].id == nextId) {
+              image[r][c + 1] = allTiles[i].data;
+              n = i;
+            }
+          }
+        }
+
+        for (let i = 0; i < allTiles.length; ++i) {
+          if (allTiles[i].id == allTiles[num].pairs[3]) {
+            image.push([allTiles[i].data]);
+            num = i;
+            i = allTiles.length;
+          }
+        }
+      }
+
+      let picture = [];
+
+      for (let r = 0; r < image.length; ++r) {
+        for (let rr = 0; rr < image[r][0].length; ++rr) {
+          let row = [];
+
+          for (let c = 0; c < image[r].length; ++c) {          
+            row.push(image[r][c][rr].join(""));
+          }
+
+          picture.push(row.join(""));
+        }        
+      }
+
+      let monsters = 0;
+
+      for (let v = 0; v < 8; ++v) {
+        picture = changeDirect(picture, v);
+        
+        for (let r = 0; r < picture.length - 2; ++r) {
+          for (let i = 0; i < picture[r].length - 20; ++i) {
+            if (picture[r][i + 18] == "#" && 
+                picture[r + 1][i] == "#" && picture[r + 1][i + 5] == "#" &&
+                picture[r + 1][i + 6] == "#" && picture[r + 1][i + 11] == "#" &&
+                picture[r + 1][i + 12] == "#" && picture[r + 1][i + 17] == "#" &&
+                picture[r + 1][i + 18] == "#" && picture[r + 1][i + 19] == "#" &&
+                picture[r + 2][i + 1] == "#" && picture[r + 2][i + 4] == "#" &&
+                picture[r + 2][i + 7] == "#" && picture[r + 2][i + 10] == "#" &&
+                picture[r + 2][i + 13] == "#" && picture[r + 2][i + 16] == "#") {
+              ++monsters;
+            }
+          }
+        }
+      }      
+
+      let part2 = picture.join("").split("").filter(e => e == "#").length - (monsters * 15);
+
+      return part1 + ", " + part2;
     } 
 
     function getPairs(allTiles) {
-      const corners = [];      
-
+      const corners = [];
       let queue = [allTiles[0]];
       
       while (queue.length > 0) {
@@ -103,7 +170,7 @@
       let border = [];
 
       if (n == 0) {
-        for (let y = data.length - 1; y >= 0; --y) {          
+        for (let y = 0; y < data.length; ++y) {          
           border.push(data[y][0]);
         } 
 
@@ -118,10 +185,9 @@
         } 
 
       } else if (n == 3) {
-        for (let y = data.length - 1; y >= 0; --y) {          
+        for (let y = 0; y < data.length; ++y) {          
           border.push(data[data.length - 1][y]);
-        } 
-
+        }
       }
 
       return border.join("");
@@ -155,7 +221,7 @@
       }     
      
       return allTiles;
-    }   
+    }
 
 const input = `Tile 1321:
 .....#.##.
